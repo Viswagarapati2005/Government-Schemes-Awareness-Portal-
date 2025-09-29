@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Add Scheme</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+  <div class="container mt-5">
+    <div class="text-end mb-3">
+  <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+</div>
+    <h2>Add a New Government Scheme</h2>
+    <form method="POST" action="/admin">
+
+      <input type="text" name="name" class="form-control" required>
+      <input type="text" name="category" class="form-control" required>
+      <input type="text" name="eligibility" class="form-control" required>
+      <input type="text" name="benefits" class="form-control" required>
+      <input type="url" name="application_link" class="form-control" required>
+      <div class="mb-3">
+        <label class="form-label">Scheme Name</label>
+        <input type="text" name="name" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Category</label>
+        <select name="category" class="form-select" required>
+          <option value="Education">Education</option>
+          <option value="Health">Health</option>
+          <option value="Employment">Employment</option>
+          <option value="Agriculture">Agriculture</option>
+          <option value="Women Empowerment">Women Empowerment</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Eligibility</label>
+        <textarea name="eligibility" class="form-control" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Benefits</label>
+        <textarea name="benefits" class="form-control" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Application Link</label>
+        <input type="url" name="application_link" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-success">Add Scheme</button>
+    </form>
+    <hr>
+<h3 class="mt-5">Manage Existing Schemes</h3>
+<form method="GET" action="/admin" class="mb-4">
+  <div class="input-group">
+    <input type="text" name="query" class="form-control" placeholder="Search schemes..." value="{{ query }}">
+    <button class="btn btn-outline-secondary" type="submit">Search</button>
+  </div>
+</form>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for scheme in schemes %}
+    <tr>
+      <td>{{ scheme.name }}</td>
+      <td>{{ scheme.category }}</td>
+      <td>
+        <a href="/edit/{{ scheme.id }}" class="btn btn-warning btn-sm">Edit</a>
+        <a href="/delete/{{ scheme.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<nav>
+  <ul class="pagination">
+    {% if page > 1 %}
+    <li class="page-item">
+      <a class="page-link" href="/admin?query={{ query }}&page={{ page - 1 }}">Previous</a>
+    </li>
+    {% endif %}
+    <li class="page-item">
+      <a class="page-link" href="/admin?query={{ query }}&page={{ page + 1 }}">Next</a>
+    </li>
+  </ul>
+</nav>
+  </div>
+</body>
+</html>

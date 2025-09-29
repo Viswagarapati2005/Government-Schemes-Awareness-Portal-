@@ -1,0 +1,530 @@
+Absolutely! Here's your full **Day 1 guide** for building your awareness website using **Python (Flask)** and **MySQL** — structured, clear, and ready to execute 💪
+
+---
+
+## 🗓️ Day 1: Planning & Setup (Python + Flask + MySQL)
+
+### 🎯 Step 1: Define Your Project Scope
+Write this in your README or notebook:
+- **Project Name:** *GovAware* (or any name you like)
+- **Goal:** Raise awareness about government schemes and services
+- **Audience:** Students, farmers, women, unemployed youth, etc.
+- **Content Categories:** Education, Health, Employment, Agriculture, Women Empowerment
+
+---
+
+### 🧱 Step 2: Choose Your Tech Stack
+
+| Layer         | Tool/Tech            |
+|---------------|----------------------|
+| **Frontend**  | HTML, CSS, Bootstrap |
+| **Backend**   | Python with Flask    |
+| **Database**  | MySQL                |
+| **Hosting**   | Render or PythonAnywhere |
+
+---
+
+### 🧑‍💻 Step 3: Install Required Tools
+
+Make sure you have:
+- Python 3.x
+- MySQL Server (with MySQL Workbench or CLI)
+- pip (Python package manager)
+
+Then install Flask and MySQL connector:
+```bash
+pip install flask mysql-connector-python
+```
+
+---
+
+### 📁 Step 4: Create Your Project Structure
+
+```
+govaware/
+│
+├── app/                      # Main application folder
+│   ├── templates/            # HTML files
+│   │   ├── index.html
+│   │   └── layout.html       # Base template
+│   ├── static/               # CSS, JS, images
+│   │   ├── styles.css
+│   │   └── logo.png
+│   ├── routes.py             # Flask routes
+│   ├── models.py             # Database queries
+│   └── __init__.py           # App factory
+│
+├── data/                     # SQL scripts or sample data
+│   └── schemes.sql
+│
+├── run.py                    # Entry point to run the app
+├── requirements.txt          # Python dependencies
+└── README.md                 # Project description
+```
+
+---
+
+### 🗃️ Step 5: Set Up MySQL Database
+
+Open MySQL Workbench or terminal and run:
+```sql
+CREATE DATABASE schemes_db;
+
+USE schemes_db;
+
+CREATE TABLE schemes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255),
+  category VARCHAR(100),
+  eligibility TEXT,
+  benefits TEXT,
+  application_link VARCHAR(255)
+);
+```
+
+---
+
+### 🔌 Step 6: Connect Flask to MySQL
+
+In `app/__init__.py`:
+```python
+from flask import Flask
+
+def create_app():
+    app = Flask(__name__)
+    app.config['DB_CONFIG'] = {
+        'host': 'localhost',
+        'user': 'yourusername',
+        'password': 'yourpassword',
+        'database': 'schemes_db'
+    }
+    return app
+```
+
+In `app/routes.py`:
+```python
+from flask import render_template
+from app import create_app
+import mysql.connector
+
+app = create_app()
+
+@app.route('/')
+def index():
+    db = mysql.connector.connect(**app.config['DB_CONFIG'])
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM schemes")
+    schemes = cursor.fetchall()
+    db.close()
+    return render_template('index.html', schemes=schemes)
+```
+
+---
+
+### 🧪 Step 7: Test Your Setup
+
+Run your app:
+```bash
+python run.py
+```
+
+Visit [http://127.0.0.1:5000](http://127.0.0.1:5000) — if the page loads (even blank), your Flask app is running!
+
+---
+
+### ✅ Day 1 Completion Checklist
+
+- [x] Defined project scope and goals
+- [x] Installed Python, Flask, MySQL
+- [x] Created project folder structure
+- [x] Built MySQL database and table
+- [x] Connected Flask backend to MySQL
+- [x] Verified app runs locally
+
+---
+
+Let me know when you're ready for **Day 2**, and I’ll help you build your homepage using Bootstrap and display real scheme data beautifully!
+
+🗓️ Day 2: Homepage Design + Data Display
+🎨 Step 1: Build Your Homepage Layout (index.html)
+Create this file inside app/templates/index.html:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GovAware - Government Schemes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">GovAware</a>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <h1 class="text-center mb-4">Explore Government Schemes</h1>
+    <div class="row">
+      {% for scheme in schemes %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">{{ scheme.name }}</h5>
+            <p class="card-text"><strong>Category:</strong> {{ scheme.category }}</p>
+            <p class="card-text"><strong>Eligibility:</strong> {{ scheme.eligibility }}</p>
+            <p class="card-text"><strong>Benefits:</strong> {{ scheme.benefits }}</p>
+            <a href="{{ scheme.application_link }}" class="btn btn-primary" target="_blank">Apply Now</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+🔌 Step 2: Update Your Route (routes.py)
+Make sure your route fetches data from MySQL and passes it to the template:
+from flask import render_template
+from app import create_app
+import mysql.connector
+
+app = create_app()
+
+@app.route('/')
+def index():
+    db = mysql.connector.connect(**app.config['DB_CONFIG'])
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM schemes")
+    schemes = cursor.fetchall()
+    db.close()
+    return render_template('index.html', schemes=schemes)
+
+
+
+🧪 Step 3: Test It!
+- Run your app:
+python run.py
+- Open your browser:
+http://127.0.0.1:5000
+- You should see:
+- A navbar with “GovAware”
+- A grid of cards showing scheme name, category, eligibility, benefits, and a link to apply
+
+✅ Day 2 Completion Checklist
+- [x] Created index.html with Bootstrap layout
+- [x] Connected homepage to MySQL data
+- [x] Displayed scheme info dynamically
+- [x] Verified everything runs locally
+
+🔥 Coming Up: Day 3
+We’ll add search and filter functionality so users can find schemes by category or keyword. Want to preview that now or take a break and continue tomorrow? You’re doing amazing!
+
+
+
+
+Welcome to **Day 3** of your awareness website project! 🎉 Today we’ll add **search and filter functionality** so users can easily find government schemes by **category** or **keyword**. This makes your site more interactive and useful — let’s make it happen!
+
+---
+
+## 🗓️ Day 3: Add Search & Filter Features
+
+### 🔍 Step 1: Update Your Homepage Template (`index.html`)
+
+Add a search bar and category dropdown above your scheme cards:
+
+```html
+<form method="GET" action="/" class="mb-4">
+  <div class="row">
+    <div class="col-md-8">
+      <input type="text" name="query" class="form-control" placeholder="Search schemes by keyword...">
+    </div>
+    <div class="col-md-4">
+      <select name="category" class="form-select">
+        <option value="">All Categories</option>
+        <option value="Education">Education</option>
+        <option value="Health">Health</option>
+        <option value="Employment">Employment</option>
+        <option value="Agriculture">Agriculture</option>
+        <option value="Women Empowerment">Women Empowerment</option>
+      </select>
+    </div>
+  </div>
+</form>
+```
+
+---
+
+### 🧠 Step 2: Modify Your Route Logic (`routes.py`)
+
+Update your route to handle search and filter queries:
+
+```python
+from flask import render_template, request
+from app import create_app
+import mysql.connector
+
+app = create_app()
+
+@app.route('/')
+def index():
+    query = request.args.get('query', '')
+    category = request.args.get('category', '')
+
+    db = mysql.connector.connect(**app.config['DB_CONFIG'])
+    cursor = db.cursor(dictionary=True)
+
+    sql = "SELECT * FROM schemes WHERE 1=1"
+    params = []
+
+    if query:
+        sql += " AND (name LIKE %s OR eligibility LIKE %s OR benefits LIKE %s)"
+        keyword = f"%{query}%"
+        params.extend([keyword, keyword, keyword])
+
+    if category:
+        sql += " AND category = %s"
+        params.append(category)
+
+    cursor.execute(sql, params)
+    schemes = cursor.fetchall()
+    db.close()
+
+    return render_template('index.html', schemes=schemes)
+```
+
+---
+
+### 🧪 Step 3: Test It!
+
+1. Run your app:
+   ```bash
+   python run.py
+   ```
+
+2. Open your browser:
+   ```
+   http://127.0.0.1:5000
+   ```
+
+3. Try:
+   - Typing “student” or “loan” in the search bar
+   - Selecting “Education” from the dropdown
+   - Combining both for precise results
+
+---
+
+### ✅ Day 3 Completion Checklist
+
+- [x] Added search bar and category filter to homepage
+- [x] Updated route to handle dynamic queries
+- [x] Verified filtering and search work correctly
+- [x] Improved user experience and accessibility
+
+---
+
+### 🔥 Coming Up: Day 4
+We’ll add **scheme detail pages** and **navigation links** so users can click on a scheme card to view full details. Want to preview that now or continue tomorrow? You're building something powerful!
+
+
+
+
+Here’s the complete and corrected version of your `index.html` file with all the necessary changes applied. This version includes:
+
+- A working Bootstrap layout
+- A search bar and category filter
+- A proper Jinja loop for displaying scheme cards
+- A fallback message if no schemes are found
+- Removal of the broken `scheme` reference outside the loop
+
+---
+
+## ✅ Final `index.html` (Fully Updated)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GovAware - Government Schemes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">GovAware</a>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <h1 class="text-center mb-4">Explore Government Schemes</h1>
+
+    <!-- Search and Filter Form -->
+    <form method="GET" action="/" class="mb-4">
+      <div class="row">
+        <div class="col-md-8">
+          <input type="text" name="query" class="form-control" placeholder="Search schemes by keyword...">
+        </div>
+        <div class="col-md-4">
+          <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            <option value="Education">Education</option>
+            <option value="Health">Health</option>
+            <option value="Employment">Employment</option>
+            <option value="Agriculture">Agriculture</option>
+            <option value="Women Empowerment">Women Empowerment</option>
+          </select>
+        </div>
+      </div>
+    </form>
+
+    <!-- Scheme Cards -->
+    <div class="row">
+      {% if schemes %}
+        {% for scheme in schemes %}
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">
+                <a href="/scheme/{{ scheme.id }}" class="text-decoration-none">{{ scheme.name }}</a>
+              </h5>
+              <p class="card-text"><strong>Category:</strong> {{ scheme.category }}</p>
+              <p class="card-text"><strong>Eligibility:</strong> {{ scheme.eligibility }}</p>
+              <p class="card-text"><strong>Benefits:</strong> {{ scheme.benefits }}</p>
+              <a href="{{ scheme.application_link }}" class="btn btn-primary" target="_blank">Apply Now</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-center">No schemes found.</p>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
+```
+
+---
+
+## 🧪 Next Steps
+
+1. Save this file as `index.html` inside your `app/templates/` folder.
+2. Restart your Flask app:
+   ```bash
+   python run.py
+   ```
+3. Visit [http://127.0.0.1:5000](http://127.0.0.1:5000) — everything should now work smoothly!
+
+Let me know when you're ready for **Day 5**, where we’ll add admin tools to manage your scheme data. You're building something truly impactful!
+
+
+
+
+
+Let’s roll into **Day 4** of your awareness website project! 🚀 Today we’ll add **scheme detail pages** so users can click on a scheme card and view full information — making your site more interactive and informative.
+
+---
+
+## 🗓️ Day 4: Scheme Detail Page + Navigation
+
+### 🧩 Step 1: Update Your Homepage Cards (`index.html`)
+
+Modify each card to link to a detail page:
+
+```html
+<h5 class="card-title">
+  <a href="/scheme/{{ scheme.id }}" class="text-decoration-none">{{ scheme.name }}</a>
+</h5>
+```
+
+This makes each scheme name clickable and routes to `/scheme/<id>`.
+
+---
+
+### 🧠 Step 2: Add a New Route (`routes.py`)
+
+Create a new route to handle scheme detail pages:
+
+```python
+@app.route('/scheme/<int:scheme_id>')
+def scheme_detail(scheme_id):
+    db = mysql.connector.connect(**app.config['DB_CONFIG'])
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM schemes WHERE id = %s", (scheme_id,))
+    scheme = cursor.fetchone()
+    db.close()
+
+    if not scheme:
+        return "Scheme not found", 404
+
+    return render_template('scheme_detail.html', scheme=scheme)
+```
+
+---
+
+### 🧾 Step 3: Create Detail Template (`scheme_detail.html`)
+
+Inside `app/templates/scheme_detail.html`:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ scheme.name }} - Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-4">
+    <a href="/" class="btn btn-secondary mb-3">← Back to Home</a>
+    <h2>{{ scheme.name }}</h2>
+    <p><strong>Category:</strong> {{ scheme.category }}</p>
+    <p><strong>Eligibility:</strong> {{ scheme.eligibility }}</p>
+    <p><strong>Benefits:</strong> {{ scheme.benefits }}</p>
+    <a href="{{ scheme.application_link }}" class="btn btn-primary" target="_blank">Apply Now</a>
+  </div>
+</body>
+</html>
+```
+
+---
+
+### 🧪 Step 4: Test It!
+
+1. Run your app:
+   ```bash
+   python run.py
+   ```
+
+2. Visit:
+   ```
+   http://127.0.0.1:5000
+   ```
+
+3. Click on any scheme name — it should take you to a detailed page with full info and an “Apply Now” button.
+
+---
+
+### ✅ Day 4 Completion Checklist
+
+- [x] Made scheme cards clickable
+- [x] Created route for scheme detail pages
+- [x] Built `scheme_detail.html` template
+- [x] Verified navigation and data display work
+
+---
+
+### 🔥 Coming Up: Day 5
+We’ll add **admin tools** to insert, update, or delete schemes — so you can manage content without touching the database manually.
+
+Want to prep your database for admin access or jump straight into Day 5? You're building something truly impactful!
+
+
+
+
+
+
+
