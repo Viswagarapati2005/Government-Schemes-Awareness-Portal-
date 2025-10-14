@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, url_for, session, flash
 from app import create_app
 import mysql.connector
 import os
+
 app = create_app()
 app.secret_key = os.getenv('SECRET_KEY', 'default-secret-key')
 app.config['DB_CONFIG'] = {
@@ -15,10 +16,29 @@ app.config['DB_CONFIG'] = {
 def index():
     db = mysql.connector.connect(**app.config['DB_CONFIG'])
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM schemes")
+
+    query = request.args.get('query', '')
+    category = request.args.get('category', '')
+
+    if query and category:
+        cursor.execute("""
+            SELECT * FROM schemes
+            WHERE (name LIKE %s OR eligibility LIKE %s OR benefits LIKE %s)
+            AND category = %s
+        """, (f"%{query}%", f"%{query}%", f"%{query}%", category))
+    elif category:
+        cursor.execute("SELECT * FROM schemes WHERE category = %s", (category,))
+    elif query:
+        cursor.execute("""
+            SELECT * FROM schemes
+            WHERE name LIKE %s OR eligibility LIKE %s OR benefits LIKE %s
+        """, (f"%{query}%", f"%{query}%", f"%{query}%"))
+    else:
+        cursor.execute("SELECT * FROM schemes")
+
     schemes = cursor.fetchall()
     db.close()
-    return render_template('index.html', schemes=schemes)
+    return render_template('index.html', schemes=schemes, query=query, category=category)
 
 @app.route('/scheme/<int:scheme_id>')
 def scheme_detail(scheme_id):
@@ -40,17 +60,20 @@ def admin():
     cursor = db.cursor(dictionary=True)
 
     if request.method == 'POST':
-        name = request.form['name']
-        category = request.form['category']
-        eligibility = request.form['eligibility']
-        benefits = request.form['benefits']
-        application_link = request.form['application_link']
-        cursor.execute("""
-            INSERT INTO schemes (name, category, eligibility, benefits, application_link)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (name, category, eligibility, benefits, application_link))
-        db.commit()
-        flash('Scheme added successfully!', 'success')
+        try:
+            name = request.form['name']
+            category = request.form['category']
+            eligibility = request.form['eligibility']
+            benefits = request.form['benefits']
+            application_link = request.form['application_link']
+            cursor.execute("""
+                INSERT INTO schemes (name, category, eligibility, benefits, application_link)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (name, category, eligibility, benefits, application_link))
+            db.commit()
+            flash('Scheme added successfully!', 'success')
+        except Exception as e:
+            flash(f"Error: {str(e)}", 'danger')
 
     query = request.args.get('query', '')
     if query:
@@ -77,19 +100,21 @@ def edit_scheme(scheme_id):
     cursor = db.cursor(dictionary=True)
 
     if request.method == 'POST':
-        name = request.form['name']
-        category = request.form['category']
-        eligibility = request.form['eligibility']
-        benefits = request.form['benefits']
-        application_link = request.form['application_link']
-        cursor.execute("""
-            UPDATE schemes SET name=%s, category=%s, eligibility=%s, benefits=%s, application_link=%s
-            WHERE id=%s
-        """, (name, category, eligibility, benefits, application_link, scheme_id))
-        db.commit()
-        db.close()
-        flash('Scheme updated successfully!', 'info')
-        return redirect(url_for('admin'))
+        try:
+            name = request.form['name']
+            category = request.form['category']
+            eligibility = request.form['eligibility']
+            benefits = request.form['benefits']
+            application_link = request.form['application_link']
+            cursor.execute("""
+                UPDATE schemes SET name=%s, category=%s, eligibility=%s, benefits=%s, application_link=%s
+                WHERE id=%s
+            """, (name, category, eligibility, benefits, application_link, scheme_id))
+            db.commit()
+            flash('Scheme updated successfully!', 'info')
+            return redirect(url_for('admin'))
+        except Exception as e:
+            flash(f"Error: {str(e)}", 'danger')
 
     cursor.execute("SELECT * FROM schemes WHERE id = %s", (scheme_id,))
     scheme = cursor.fetchone()
